@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Photo to URL Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .box {
+      background: #020617;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    input, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background: #22c55e;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .url-box {
+      margin-top: 15px;
+      word-break: break-all;
+      background: #020617;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>📷 Photo to URL</h2>
+
+  <input type="file" id="photo" accept="image/*">
+  <button onclick="uploadPhoto()">Upload & Get URL</button>
+
+  <div class="url-box" id="result">
+    <p id="urlText"></p>
+    <button onclick="copyURL()">Copy URL</button>
+  </div>
+</div>
+
+<script>
+  // 🔥 Firebase Config (यहाँ अपना config डालो)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "XXXXXXX",
+    appId: "XXXXXXX"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const storage = firebase.storage();
+
+  function uploadPhoto() {
+    const file = document.getElementById("photo").files[0];
+    if (!file) {
+      alert("Please select a photo");
+      return;
+    }
+
+    const fileName = Date.now() + "_" + file.name;
+    const storageRef = storage.ref("photos/" + fileName);
+
+    storageRef.put(file).then(() => {
+      storageRef.getDownloadURL().then((url) => {
+        document.getElementById("urlText").innerText = url;
+        document.getElementById("result").style.display = "block";
+      });
+    }).catch(err => {
+      alert("Upload failed");
+      console.error(err);
+    });
+  }
+
+  function copyURL() {
+    const text = document.getElementById("urlText").innerText;
+    navigator.clipboard.writeText(text);
+    alert("URL Copied!");
+  }
+</script>
+
+</body>
+</html>
